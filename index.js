@@ -32,7 +32,30 @@ var listener = app.listen(process.env.PORT, function() {
 
 // API endpoint to return date
 app.route("/api/:date").get((req, res) => {
-  const unix = Date.parse(req.params.date)
-  const utc = new Date(req.params.date).toUTCString()
+  let date;
+  
+  if (isNaN(req.params.date)) {
+    date = new Date(req.params.date)
+  } else {
+    date = new Date(Number(req.params.date))
+  }
+
+  if (isValidDate(date)) {
+    const unix = date.getTime()
+    const utc = date.toUTCString()
+    res.json({ unix: unix, utc: utc })
+  } else {
+    res.json({ error: "Invalid Date" })
+  }
+})
+
+app.route("/api").get((req, res) => {
+  const date = new Date()
+  const unix = date.getTime()
+  const utc = date.toUTCString()
   res.json({ unix: unix, utc: utc })
 })
+
+const isValidDate = (date) => {
+  return (!isNaN(date.getTime()))
+}
